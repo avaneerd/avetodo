@@ -1,5 +1,4 @@
 # avetodo
----
 This project is for educational purposes with which I want to teach you the basics of Angular(2). It will also include a node server to persist data and to also get you familiar with communication from Angular with web services.
 
 Following this training should teach you the following:
@@ -9,7 +8,6 @@ Following this training should teach you the following:
 This training assumes you have nodejs and git installed.
 
 ## 1. setting up the project
----
 
 1. Install the Angular CLI tooling by running `npm install @angular/cli -g` from the commandline.  
    The `-g` option install the tooling as global, this means that from every command window you option that tooling will be available.  
