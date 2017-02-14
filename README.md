@@ -172,19 +172,146 @@ Because we need some data to work with let's create a service first. A service i
    ```
    And add the service as provider in the `providers` array.
    ```typescript
-    ...
     providers: [TodoService],
-    ...
    ```
    Now the service will be injected if we "ask" for it somewhere in our app.
 
+### 2.2 Creating the todo item component 
+Because we will be rendering todo items on multiple places we want them to be sepperate components, so that we can reuse the component on sepperate pages.
 
+1. Run the command `ng g component todoItem` to generate a component.
 
+2. This component will be receiving a TodoItem-object, this should be received and be exposed to the template by the component.
+   Open the `todo-item.component.ts` class that is generated.
 
+   Because we will be working with the TodoItem model we created earlier we have to import again in this component.
+   ```typescript
+    import { TodoItem } from './../TodoItem';
+   ```
 
+   Also because we will be working with an input parameter we want to import the needed `Input` for it aswell.
+   ```typescript
+    import { Component, Input, OnInit } from '@angular/core';
+   ```
 
+   Now let's create a property that will act as input parameter.
+   ```typescript
+    export class TodoItemComponent implements OnInit {
+        @Input() todoItem: TodoItem;
+   ```
+   This input parameter we will be using later in our code.
 
+3. Now let's switch to the template `todo-item.template.html` and put in some basic output.
+   ```html
+    <div>
+        <h1>{{ todoItem.title }}</h1>
+        <p>{{ todoItem.description }}</p>
+        <small>prio: {{ todoItem.priority }}</small>
+        <small>{{ todoItem.createdOn }}</small>
+        <button (click)="completeItem()" *ngIf="!todoItem.completedOn">Completed</button>
+    </div>
+   ```
+   As you can see I also added a button with a click event and an if. If the `completedOn` on the todo item is not null the button will not be rendered.
+   
+   Note that this is a very basic (read ugly) view of our todo item, we will be pimping it later ;-)
 
+4. In the previous step we added a button in the view, it has a click event which has not been implemented yet.
+   Open `todo-item.component.ts` and add the `completeItem` method that is being called in the view.
+   ```typescript
+   completeItem() {
+   }
+   ```
 
+5. Because we will be using the `TodoService` here as well let's import and inject it.
+   ```typescript
+    import { TodoService } from './../todo.service';
 
+    ...
 
+    constructor(private todoService: TodoService) { }
+   ```
+
+6. Now let's implement the `completeItem` method.
+   ```typescript
+    completeItem() {
+        this.todoItem.completedOn = new Date();
+
+        this.todoService.editTodoItem(this.todoItem.id, this.todoItem)
+            .then(null,
+            () => {
+            alert('Failed saving changes');
+            this.todoItem.completedOn = null;
+        });
+    }
+   ```
+   Here you see that in the promise (the `then(..., ...)`) I specify `null` as first parameter. 
+   This is because I don't want anything to happen when the request is completed succesfully. 
+   Because this method was called through angular it knows it should check if the bindings to the views are still up to date.
+   In this case after setting the `completedOn` date to the current date the 'complete' button should disappear from the view because the ngIf expression evaluates to false.
+   
+   When the request fails on the other hand I want it the show an error and reset the `completedOn` value.
+
+### 2.3 Todo item list component
+Now we have a todo item component but it is just one component, we now need some sort of container that renders multiple of these todo item components.
+This component will be very straight forward, it will receive todo items and will render todo item components for each of them.
+
+1. Run the command `ng g component todoItemList` to generate a component.
+
+2. Just like the todo item component this component will have a parameter, in this case to receive an array of todo items to render.
+   Open the `todo-item-list.component.ts` class that is generated.
+
+   import the Input and TodoItem classes.
+   ```typescript
+    import { TodoItem } from './../TodoItem';
+    import { Component, Input, OnInit } from '@angular/core';
+   ```
+
+   And add the input property.
+   ```typescript
+    export class TodoItemListComponent implements OnInit {
+        @Input() todoItems: Array<TodoItem>;
+   ```
+
+3. Now let's add the view for it in `todo-item-list.template.html`.
+   ```html
+    <div>
+        <app-todo-item *ngFor="#item of todoItems" [todoItem]="item"></app-todo-item>
+    </div>
+   ```
+
+### 2.4 Creating the todo overview page
+Now we're going to create the overview page, where all open todo items are going to be displayed.
+
+1. Run the command `ng g component overview` to generate a component.
+
+2. To render todo items on the screen we first need to expose them in our component.
+   Open the `overview.component.ts` class that is generated.
+
+   Because we will be working with the TodoService and the TodoItem model we created earlier we have to import again in this component.
+   ```typescript
+    import { TodoItem } from './../TodoItem';
+    import { TodoService } from './../todo.service';
+   ```
+
+   Now add a property of the type `Array<TodoItem>'.
+   ```typescript
+    export class OverviewComponent implements OnInit {
+        todoItems: Array<TodoItem>;
+   ```
+
+   Now we can "ask" for the TodoService in the constructor of the component, as it's been registered as provider in `app.module.ts` it will be automatically be injected.
+   ```typescript
+    constructor(private todoService: TodoService) { }
+   ```
+   Adding private before a constructor parameter automatically creates the parameter as a private field on the class.
+
+   When we wan't to load data when the component is initialized we should use the ngOnInit method for this. 
+   Angular cli already generated an empty `ngOnInit` method for us, so let's implement it to fetch todo items from the todo service.
+   ```typescript
+    ngOnInit() {
+        this.todoService.getTodoItems()
+            .then(items => this.todoItems = items, () => alert('Error loading todo items.'));
+    }
+   ```
+   Here you can see the promise in action, an asynchronous action is started and when that is finished one of the functions specified in the `then(..., ...)` method is called.
+   When the asynchronous completed succesfully the first funtion is called, if it failed it calls the second (second parameter is optional).
