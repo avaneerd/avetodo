@@ -67,7 +67,7 @@ Because we need some data to work with let's create a service first. A service i
 	
 	    /** The date of when the todo item was completed, null if not completed yet */
 	    completedOn: Date;
-	}
+	 }
    ```
    Now we have a simple object which we can use in our service and, later on, to use it to communicate with our service.
 
@@ -83,19 +83,19 @@ Because we need some data to work with let's create a service first. A service i
    And add an array to store our todo items.
    ```typescript
    export class TodoService {
-     private todoItems: Array<TodoItem>;
+       private todoItems: Array<TodoItem>;
    ```
 
    Also initialize the array with an todo item already in there.
    ```typescript
    constructor() {
-     const ti = new TodoItem();
-     ti.title = 'A test todo item';
-     ti.description = 'This is a description for my todo item.';
-     ti.createdOn = new Date();
-     ti.priority = 1;
+       const ti = new TodoItem();
+       ti.title = 'A test todo item';
+       ti.description = 'This is a description for my todo item.';
+       ti.createdOn = new Date();
+       ti.priority = 1;
 
-     this.todoItems = [ti];
+       this.todoItems = [ti];
    }
    ```
 
