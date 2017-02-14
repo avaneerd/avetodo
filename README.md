@@ -37,3 +37,78 @@ This training assumes you have nodejs and git installed.
    When building the app the listed files should be taken into the build.
    
 5. Now run `ng serve` to build and host the project, after it's done compiling you can go to `http://localhost:4200` to see an 'App works!' message.
+
+## 2. Building the app
+
+Now that we have our project setup we can go ahead and implement our app. 
+To give our app a bit more complexity (both graphically and technically) I want our todo app to have:
+- A title and description for todo items.
+- Show date and time of creation and completion of todo items.
+- Show archived (completed) todo items.
+
+### 2.1 Let's start with the service
+Because we need some data to work with let's create a service first. A service is a piece of code that has no visual component and is usually used for handling data. In this case we will be creating a service which will let us get, create, update and delete todo items.
+
+1. First let's create an TodoItem object that will hold all the information for our todo items.
+   Create a new file in `src\app` called `TodoItem.ts` and populate it with the following:
+   ```typescript
+   export class TodoItem {
+	    /** The title of the todo item */
+	    title: string;
+	
+	    /** The description of the todo item */
+	    description: string;
+	
+	    /** The priority of the todo item */
+	    priority: number;
+	
+	    /** The date of when the todo item was created */
+	    createdOn: Date;
+	
+	    /** The date of when the todo item was completed, null if not completed yet */
+	    completedOn: Date;
+	}
+   ```
+   Now we have a simple object which we can use in our service and, later on, to use it to communicate with our service.
+
+2. Run to following command `ng g service todo`.  
+   This command will generate a service for us named 'todo', files are being generated following angular conventions.
+
+3. Now let's create an array that will hold our todo items.
+   Import the definition of out TodoItem model at the top of the file.
+   ```typescript
+   import { TodoItem } from './TodoItem';
+   ```
+   
+   And add an array to store our todo items.
+   ```typescript
+   export class TodoService {
+     private todoItems: Array<TodoItem>;
+   ```
+
+   Also initialize the array with an todo item already in there.
+   ```typescript
+   constructor() {
+     const ti = new TodoItem();
+     ti.title = 'A test todo item';
+     ti.description = 'This is a description for my todo item.';
+     ti.createdOn = new Date();
+     ti.priority = 1;
+
+     this.todoItems = [ti];
+   }
+   ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
