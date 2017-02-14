@@ -53,6 +53,9 @@ Because we need some data to work with let's create a service first. A service i
    Create a new file in `src\app` called `TodoItem.ts` and populate it with the following:
    ```typescript
    export class TodoItem {
+      /** The id of the todo item */
+      id: number;
+
 	    /** The title of the todo item */
 	    title: string;
 	
@@ -80,10 +83,11 @@ Because we need some data to work with let's create a service first. A service i
    import { TodoItem } from './TodoItem';
    ```
    
-   And add an array to store our todo items.
+   And add an array to store our todo items and a counter for ids.
    ```typescript
    export class TodoService {
        private todoItems: Array<TodoItem>;
+       private nextId = 0;
    ```
 
    Also initialize the array with an todo item already in there.
@@ -94,13 +98,85 @@ Because we need some data to work with let's create a service first. A service i
        ti.description = 'This is a description for my todo item.';
        ti.createdOn = new Date();
        ti.priority = 1;
+       ti.id = this.nextId++;
 
        this.todoItems = [ti];
    }
    ```
+4. Now let's add a method to get todo items.
+   ```typescript
+   /** Get all unarchived todo items */
+   getTodoItems(): Promise<TodoItem[]> {
+       return Promise.resolve(this.todoItems.filter(item => !item.completedOn));
+   }
+   ```
+   You see I return a `Promise<TodoItem[]>` as return type, the promise is there to make implementing asynchronous actions easier.
+   Also you can see I call `.filter(...)` on the todo items, this is to filter out completed items.
 
+5. Add a method to get our archived/completed todo items.
+   ```typescript
+   /** Get all archived todo items */
+  getArchivedTodoItems(): Promise<TodoItem[]> {
+      return Promise.resolve(this.todoItems.filter(item => item.completedOn));
+  }
+   ```
 
+6. Also add a member to get a todo item by id.
+   ```typescript
+   /** Get a todo item by id */
+   getTodoItem(id: number): Promise<TodoItem> {
+       return Promise.resolve(this.todoItems.find(item => item.id === id));
+   }
+   ```
 
+7. Let's also add ways to mutate todo items.
+   ```typescript
+   /** Add a todo item */  
+   addTodoItem(todoItem: TodoItem): Promise<TodoItem> {
+       todoItem.id = this.nextId++;
+       this.todoItems.push(todoItem);
+
+       return Promise.resolve(todoItem);
+   }
+
+   /** edit a todo item */
+   editTodoItem(id: number, todoItem: TodoItem): Promise<TodoItem> {
+       const existingItem = this.todoItems.find(item => item.id === id);
+
+       if (existingItem) {
+          this.todoItems.splice(this.todoItems.indexOf(existingItem), 1);
+       }
+
+       todoItem.id = id;
+       this.todoItems.push(todoItem);
+
+       return Promise.resolve(todoItem);
+   }
+
+   /** delete a todo item */
+   deleteTodoItem(id: number): Promise<void> {
+       const existingItem = this.todoItems.find(item => item.id === id);
+
+       if (existingItem) {
+          this.todoItems.splice(this.todoItems.indexOf(existingItem), 1);
+       }
+
+       return Promise.resolve();
+   }
+   ```
+
+8. Finally let's add our service as provider so that it can be injected.
+   Open the file `app.module.ts` and import the todo-service.
+   ```typescript
+   import { TodoService } from './todo.service';
+   ```
+   And add the service as provider in the `providers` array.
+   ```typescript
+   ...
+   providers: [TodoService],
+   ...
+   ```
+   Now the service will be injected if we "ask" for it somewhere in our app.
 
 
 
