@@ -9,16 +9,16 @@ This training assumes you have nodejs and git installed.
 
 ## 1. setting up the project
 
-1. Install the Angular CLI tooling by running `npm install @angular/cli -g` from the commandline.  
+1. Install the Angular CLI tooling by running `npm install @angular/cli -g` from the command line.  
    The `-g` option install the tooling as global, this means that from every command window you option that tooling will be available.  
    After installing the Angular CLI tooling you have the `ng` command available.
    
 2. Goto to a folder where you store your sources and run the command `ng new avetodo`.  
-   This will create a new folder named 'avetodo' in wich `ng init` will be run.  
+   This will create a new folder named 'avetodo' in which `ng init` will be run.  
    'ng init ' will create a angular boilerplate project and pull in the dependencies for it.
    
 3. Go into the folder the folder was created and run `npm install jquery tether bootstrap@next --save`.  
-   This will install bootstrap, tether and jquery as depedency for our project. The `--save` option` saves bootstrap as an depedency to `package.json`.
+   This will install bootstrap, tether and jquery as dependency for our project. The `--save` option` saves bootstrap as an dependency to `package.json`.
    
 4. Next we need to make sure we can actually use bootstrap for our app. We do this by adding files needed to use bootstrap in the `angular-cli.json` file.  
    Open the `angular-cli.json` file and find the `scripts` and `styles` arrays in the file, change the content of both arrays as shown below:
@@ -181,7 +181,7 @@ Because we need some data to work with let's create a service first. A service i
    Now the service will be injected if we "ask" for it somewhere in our app.
 
 ### 2.2 Creating the todo item component 
-Because we will be rendering todo items on multiple places we want them to be sepperate components, so that we can reuse the component on sepperate pages.
+Because we will be rendering todo items on multiple places we want them to be separate components, so that we can reuse the component on separate pages.
 
 1. Run the command `ng g component todoItem` to generate a component.
 
@@ -210,9 +210,9 @@ Because we will be rendering todo items on multiple places we want them to be se
     <div>
         <h1>{{ todoItem.title }}</h1>
         <p>{{ todoItem.description }}</p>
-        <small>prio: {{ todoItem.priority }}</small>
-        <small>{{ todoItem.createdOn }}</small>
-        <small *ngIf="!todoItem.completedOn">{{ todoItem.completedOn }}</small>
+        <p>prio: {{ todoItem.priority }}</p>
+        <p>created on: {{ todoItem.createdOn }}</p>
+        <p *ngIf="todoItem.completedOn">completed on: {{ todoItem.completedOn }}</p>
         <button (click)="completeItem()" *ngIf="!todoItem.completedOn">Completed</button>
     </div>
    ```
@@ -253,7 +253,7 @@ Because we will be rendering todo items on multiple places we want them to be se
     }
    ```
    Here you see that in the promise (the `then(..., ...)`) I specify `null` as first parameter. 
-   This is because I don't want anything to happen when the request is completed succesfully. 
+   This is because I don't want anything to happen when the request is completed successfully. 
    Because this method was called through angular it knows it should check if the bindings to the views are still up to date.
    In this case after setting the `completedOn` date to the current date the 'complete' button should disappear from the view because the ngIf expression evaluates to false.
    
@@ -288,7 +288,7 @@ This component will be very straight forward, it will receive todo items and wil
    ```
 
 ### 2.4 Creating the todo overview page
-Now that we have components to render our todo items we now need a component that get's that data and uses the todo item list component to render the todo items.
+Now that we have components to render our todo items we now need a component that gets that data and uses the todo item list component to render the todo items.
 This component will also serve as the landing page for our app.
 
 1. Run the command `ng g component overview` to generate a component.
@@ -344,4 +344,7 @@ Do this by running `ng serve` and going to `http://localhost:4200` in your brows
 The result should be something like this:  
 ![ave todo first run](/readmecontent/images//first-run-todo.png?raw=true)
 
-We can click the 'complete' button to see it disappear and see a completed date show up instead.
+We can click the 'complete' button to see it disappear and see a completed date show up instead. 
+
+Because we don't save the data persistently the changes we make will be gone after refreshing.
+In the next chapter we will be creating a server in node to be able to save the data to disc.
