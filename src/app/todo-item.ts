@@ -1,6 +1,6 @@
 export class TodoItem {
     /** The id of the todo item */
-    id: number;
+    _id: number;
 
     /** The title of the todo item */
     title: string;

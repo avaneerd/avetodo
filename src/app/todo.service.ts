@@ -12,7 +12,7 @@ export class TodoService {
     ti.description = 'This is a description for my todo item.';
     ti.createdOn = new Date();
     ti.priority = 1;
-    ti.id = this.nextId++;
+    ti._id = this.nextId++;
 
     this.todoItems = [ti];
   }
@@ -29,12 +29,12 @@ export class TodoService {
 
   /** Get all unarchived todo items */
   getTodoItem(id: number): Promise<TodoItem> {
-    return Promise.resolve(this.todoItems.find(item => item.id === id));
+    return Promise.resolve(this.todoItems.find(item => item._id === id));
   }
 
   /** Add a todo item */  
   addTodoItem(todoItem: TodoItem): Promise<TodoItem> {
-    todoItem.id = this.nextId++;
+    todoItem._id = this.nextId++;
     this.todoItems.push(todoItem);
 
     return Promise.resolve(todoItem);
@@ -42,13 +42,13 @@ export class TodoService {
 
   /** edit a todo item */
   editTodoItem(id: number, todoItem: TodoItem): Promise<TodoItem> {
-    const existingItem = this.todoItems.find(item => item.id === id);
+    const existingItem = this.todoItems.find(item => item._id === id);
 
     if (existingItem) {
       this.todoItems.splice(this.todoItems.indexOf(existingItem), 1);
     }
 
-    todoItem.id = id;
+    todoItem._id = id;
     this.todoItems.push(todoItem);
 
     return Promise.resolve(todoItem);
@@ -56,7 +56,7 @@ export class TodoService {
 
   /** delete a todo item */
   deleteTodoItem(id: number): Promise<void> {
-    const existingItem = this.todoItems.find(item => item.id === id);
+    const existingItem = this.todoItems.find(item => item._id === id);
 
     if (existingItem) {
       this.todoItems.splice(this.todoItems.indexOf(existingItem), 1);

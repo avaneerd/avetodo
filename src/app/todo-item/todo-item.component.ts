@@ -18,7 +18,7 @@ export class TodoItemComponent implements OnInit {
   completeItem() {
     this.todoItem.completedOn = new Date();
 
-    this.todoService.editTodoItem(this.todoItem.id, this.todoItem)
+    this.todoService.editTodoItem(this.todoItem._id, this.todoItem)
       .then(null,
       () => {
         alert('Failed saving changes');

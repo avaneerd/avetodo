@@ -58,7 +58,7 @@ Because we need some data to work with let's create a service first. A service i
    ```typescript
     export class TodoItem {
         /** The id of the todo item */
-        id: number;
+        _id: number;
 
         /** The title of the todo item */
         title: string;
@@ -102,7 +102,7 @@ Because we need some data to work with let's create a service first. A service i
         ti.description = 'This is a description for my todo item.';
         ti.createdOn = new Date();
         ti.priority = 1;
-        ti.id = this.nextId++;
+        ti._id = this.nextId++;
 
         this.todoItems = [ti];
     }
@@ -129,7 +129,7 @@ Because we need some data to work with let's create a service first. A service i
    ```typescript
     /** Get a todo item by id */
     getTodoItem(id: number): Promise<TodoItem> {
-        return Promise.resolve(this.todoItems.find(item => item.id === id));
+        return Promise.resolve(this.todoItems.find(item => item._id === id));
     }
    ```
 
@@ -137,7 +137,7 @@ Because we need some data to work with let's create a service first. A service i
    ```typescript
     /** Add a todo item */  
     addTodoItem(todoItem: TodoItem): Promise<TodoItem> {
-        todoItem.id = this.nextId++;
+        todoItem._id = this.nextId++;
         this.todoItems.push(todoItem);
 
         return Promise.resolve(todoItem);
@@ -145,13 +145,13 @@ Because we need some data to work with let's create a service first. A service i
 
     /** edit a todo item */
     editTodoItem(id: number, todoItem: TodoItem): Promise<TodoItem> {
-        const existingItem = this.todoItems.find(item => item.id === id);
+        const existingItem = this.todoItems.find(item => item._id === id);
 
         if (existingItem) {
             this.todoItems.splice(this.todoItems.indexOf(existingItem), 1);
         }
 
-        todoItem.id = id;
+        todoItem._id = id;
         this.todoItems.push(todoItem);
 
         return Promise.resolve(todoItem);
@@ -159,7 +159,7 @@ Because we need some data to work with let's create a service first. A service i
 
     /** delete a todo item */
     deleteTodoItem(id: number): Promise<void> {
-        const existingItem = this.todoItems.find(item => item.id === id);
+        const existingItem = this.todoItems.find(item => item._id === id);
 
         if (existingItem) {
             this.todoItems.splice(this.todoItems.indexOf(existingItem), 1);
@@ -244,7 +244,7 @@ Because we will be rendering todo items on multiple places we want them to be se
     completeItem() {
         this.todoItem.completedOn = new Date();
 
-        this.todoService.editTodoItem(this.todoItem.id, this.todoItem)
+        this.todoService.editTodoItem(this.todoItem._id, this.todoItem)
             .then(null,
             () => {
             alert('Failed saving changes');
@@ -367,9 +367,9 @@ Because we will be using CommonJS and not TypeScript for our server code we need
 Create a new file called `todo-item.js` in the 'server' folder.
 Fill the file with the following:
 ```javascript
-function TodoItem(id, title, description, priority, createdOn, completedOn) {
+function TodoItem(_id, title, description, priority, createdOn, completedOn) {
     /** The id of the todo item */
-    this.id = id;
+    this._id = _id;
 
     /** The title of the todo item */
     this.title = title;
@@ -393,7 +393,7 @@ module.exports = TodoItem;
 ### 3.3 Setting up the server
 1. Create a new file called `server.js` in the folder 'server'.
 
-2. In CommonJS you can also import file much like we already did in TypeScript only the syntax is a bit different.
+2. In CommonJS you can also import dependencies much like we already did in TypeScript only the syntax is a bit different.
    Let's start with importing the `TodoItem` model and express.
    ```javascript
     var TodoItem = require('./todo-item');
@@ -416,5 +416,66 @@ module.exports = TodoItem;
     });
    ```
 
-5. Now run the server using `node .\server\server.js` and goto http://localhost:3000 in your browser.
+5. Now run the server using `node .\server\server.js` and goto `http://localhost:3000` in your browser.
    The result should be 'Hello World!'.
+
+### 3.4 Creating a data store for todo items.
+
+1. Create a new file called `todo-item-store.js` in the folder 'server'.
+
+2. Import NeDB and our `TodoItem` model.
+   ```javascript
+    var TodoItem = require('./todo-item');
+    var Datastore = require('nedb');
+   ```
+
+3. Now let's make a `TodoItemStore` class and initialize a local database using a NeDB-datastore.
+   ```javascript
+    function TodoItemStore() {
+        var db = new Datastore({ filename: 'todo-items.db', autoload: true });
+    }
+
+    module.exports = TodoItemStore;
+   ```
+
+4. Now let's implement a method to get unarchived todo items sorted by `priority` from the datastore.  
+   Add this code after the `function TodoItemStore() { ... }` body and before `module.exports = TodoItemStore`.
+   ```javascript
+    TodoItemStore.prototype.getOpenTodoItem = function () {
+        return new Promise(function(resolve, reject) {
+            // Get items where createdOn is null and sort by priority descending.
+            db.find({ createdOn: null }).sort({ priority: -1 }).exec(function (err, docs) {
+                if (err) {
+                    reject(err);
+                }
+
+                resolve(docs);
+            });
+        });
+    };
+   ```
+   Because the the datastore is asynchronous but does not implement promises we implemented our own promise and return that as result of the function.  
+   When the datastore returns with result either `resolve(...)` or `reject(...)` is called depending if an error occurred or not.  
+
+   Promises expose a function `.then(..., ...)` which expects 2 functions. 
+   The first one is code to run when the asynchronous action resolved successfully and the second one (which is optional) is called when the asynchronous action failed and is rejected.
+
+### 3.5 Exposing the get function in our web service
+1. Let's open `server.js` again and make use of our datastore.
+   ```javascript
+    var TodoItemStore = require('./todo-item-store');
+   ```
+
+2. Make an instance of our datastore. Put this line before `var app = express();`.
+   ```javascript
+   var todoItemStore = new TodoItemStore();
+   ```
+3. Now let's change the implementation of out `app.get(...)` to retrieve and return data from our datastore.
+   ```javascript
+    app.get('/', function (req, res) {
+        todoItemStore.getOpenTodoItem()
+            .then((todoItems) => res.send(todoItems), (err) => res.status(500).send(err));
+    });
+   ```
+   Now when our asynchronous action is finished a `res.rend(...)` is called to send response back to the client.  
+   If the asynchronous action failed the status is set to 500 and the error is send back.

@@ -1,6 +1,6 @@
-function TodoItem(id, title, description, priority, createdOn, completedOn) {
+function TodoItem(_id, title, description, priority, createdOn, completedOn) {
     /** The id of the todo item */
-    this.id = id;
+    this._id = _id;
 
     /** The title of the todo item */
     this.title = title;
