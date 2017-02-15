@@ -472,10 +472,11 @@ module.exports = TodoItem;
    ```
 3. Now let's change the implementation of out `app.get(...)` to retrieve and return data from our datastore.  
    ```javascript
-    app.get('/', function (req, res) {
-        todoItemStore.getOpenTodoItem()
-            .then((todoItems) => res.send(todoItems), (err) => res.status(500).send(err));
-    });
+   app.get('/', function (req, res) {
+       todoItemStore.getOpenTodoItem()
+           .then((todoItems) => res.send(todoItems), (err) => res.status(500).send(err));
+   });
    ```
+   
    Now when our asynchronous action is finished a `res.rend(...)` is called to send response back to the client.  
    If the asynchronous action failed the status is set to 500 and the error is send back.
