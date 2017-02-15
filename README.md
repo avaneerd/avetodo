@@ -49,8 +49,12 @@ To give our app a bit more complexity (both graphically and technically) I want 
 ### 2.1 Let's start with the service
 Because we need some data to work with let's create a service first. A service is a piece of code that has no visual component and is usually used for handling data. In this case we will be creating a service which will let us get, create, update and delete todo items.
 
-1. First let's create an TodoItem object that will hold all the information for our todo items.
-   Create a new file in `src\app` called `TodoItem.ts` and populate it with the following:
+1. First let's create an TodoItem model that will hold all the information for our todo items.
+   
+   Run the following command to create a new class file `ng g class TodoItem`.
+
+   Now open the generated file it's called `todo-item.ts` and you can find it in `src/app`.
+   Populate it with the following:
    ```typescript
     export class TodoItem {
         /** The id of the todo item */
@@ -80,7 +84,7 @@ Because we need some data to work with let's create a service first. A service i
 3. Now let's create an array that will hold our todo items.
    Import the definition of out TodoItem model at the top of the file.
    ```typescript
-    import { TodoItem } from './TodoItem';
+    import { TodoItem } from './todo-item';
    ```
    
    And add an array to store our todo items and a counter for ids.
@@ -186,7 +190,7 @@ Because we will be rendering todo items on multiple places we want them to be se
 
    Because we will be working with the TodoItem model we created earlier we have to import again in this component.
    ```typescript
-    import { TodoItem } from './../TodoItem';
+    import { TodoItem } from './../todo-item';
    ```
 
    Also because we will be working with an input parameter we want to import the needed `Input` for it aswell.
@@ -208,10 +212,12 @@ Because we will be rendering todo items on multiple places we want them to be se
         <p>{{ todoItem.description }}</p>
         <small>prio: {{ todoItem.priority }}</small>
         <small>{{ todoItem.createdOn }}</small>
+        <small *ngIf="!todoItem.completedOn">{{ todoItem.completedOn }}</small>
         <button (click)="completeItem()" *ngIf="!todoItem.completedOn">Completed</button>
     </div>
    ```
-   As you can see I also added a button with a click event and an if. If the `completedOn` on the todo item is not null the button will not be rendered.
+   As you can see I also added a button with a click event and an if statement. 
+   If the `completedOn` on the todo item is not null the button will not be rendered.
    
    Note that this is a very basic (read ugly) view of our todo item, we will be pimping it later ;-)
 
@@ -222,16 +228,18 @@ Because we will be rendering todo items on multiple places we want them to be se
    }
    ```
 
-5. Because we will be using the `TodoService` here as well let's import and inject it.
+5. Because we will be using the `TodoService` let's import it.
    ```typescript
     import { TodoService } from './../todo.service';
-
-    ...
-
-    constructor(private todoService: TodoService) { }
    ```
 
-6. Now let's implement the `completeItem` method.
+6. Now we can "ask" for the `TodoService` in the constructor of the component, as it's been registered as provider in `app.module.ts` it will be automatically be injected.
+   ```typescript
+    constructor(private todoService: TodoService) { }
+   ```
+   Adding private before a constructor parameter automatically creates the parameter as a private field on the class.
+
+7. Now let's implement the `completeItem` method.
    ```typescript
     completeItem() {
         this.todoItem.completedOn = new Date();
@@ -262,7 +270,7 @@ This component will be very straight forward, it will receive todo items and wil
 
    import the Input and TodoItem classes.
    ```typescript
-    import { TodoItem } from './../TodoItem';
+    import { TodoItem } from './../todo-item';
     import { Component, Input, OnInit } from '@angular/core';
    ```
 
@@ -275,37 +283,37 @@ This component will be very straight forward, it will receive todo items and wil
 3. Now let's add the view for it in `todo-item-list.template.html`.
    ```html
     <div>
-        <app-todo-item *ngFor="#item of todoItems" [todoItem]="item"></app-todo-item>
+        <app-todo-item *ngFor="let item of todoItems" [todoItem]="item"></app-todo-item>
     </div>
    ```
 
 ### 2.4 Creating the todo overview page
-Now we're going to create the overview page, where all open todo items are going to be displayed.
+Now that we have components to render our todo items we now need a component that get's that data and uses the todo item list component to render the todo items.
+This component will also serve as the landing page for our app.
 
 1. Run the command `ng g component overview` to generate a component.
 
 2. To render todo items on the screen we first need to expose them in our component.
    Open the `overview.component.ts` class that is generated.
 
-   Because we will be working with the TodoService and the TodoItem model we created earlier we have to import again in this component.
+   Import the `TodoItem` model and the `TodoService`.
    ```typescript
-    import { TodoItem } from './../TodoItem';
+    import { TodoItem } from './../todo-item';
     import { TodoService } from './../todo.service';
    ```
 
-   Now add a property of the type `Array<TodoItem>'.
+   Now add a property of the type `Array<TodoItem>`.
    ```typescript
     export class OverviewComponent implements OnInit {
         todoItems: Array<TodoItem>;
    ```
 
-   Now we can "ask" for the TodoService in the constructor of the component, as it's been registered as provider in `app.module.ts` it will be automatically be injected.
+   Now let's inject the `TodoService` again.
    ```typescript
     constructor(private todoService: TodoService) { }
    ```
-   Adding private before a constructor parameter automatically creates the parameter as a private field on the class.
 
-   When we wan't to load data when the component is initialized we should use the ngOnInit method for this. 
+   When we want to load data when the component is initialized we should use the ngOnInit method for this. 
    Angular cli already generated an empty `ngOnInit` method for us, so let's implement it to fetch todo items from the todo service.
    ```typescript
     ngOnInit() {
@@ -313,5 +321,24 @@ Now we're going to create the overview page, where all open todo items are going
             .then(items => this.todoItems = items, () => alert('Error loading todo items.'));
     }
    ```
-   Here you can see the promise in action, an asynchronous action is started and when that is finished one of the functions specified in the `then(..., ...)` method is called.
-   When the asynchronous completed succesfully the first funtion is called, if it failed it calls the second (second parameter is optional).
+
+3. Switch to the `overview.template.html` template to implement our view.
+   This will be a simple component that will just use the todo item list component to render todo items.
+   ```html
+   <app-todo-item-list [todoItems]="todoItems"></app-todo-item-list>
+   ```
+
+4. And finally to show our overview we have to add the component to the default app component. 
+   The app component is the component that is bootstrapped by angular (as configured in the `app.module.ts`).
+   So if we want to show our component we have to add it to the app component.
+
+   Open `app.component.html` and replace the content with the following:
+   ```html
+    <app-overview></app-overview>
+   ```
+
+5. Now let's build and run out project to see the ugly fruits of our effort :-).
+   Do this by running `ng server` and going to `http://localhost:4200` in your browser.
+
+   The result should be something like this:  
+   ![ave todo first run](/readmecontent/images//first-run-todo.png?raw=true)

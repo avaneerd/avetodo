@@ -1,4 +1,4 @@
-import { TodoItem } from './TodoItem';
+import { TodoItem } from './todo-item';
 import { Injectable } from '@angular/core';
 
 @Injectable()

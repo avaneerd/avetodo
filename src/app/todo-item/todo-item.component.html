@@ -1,7 +1,8 @@
 <div>
   <h1>{{ todoItem.title }}</h1>
   <p>{{ todoItem.description }}</p>
-  <small>prio: {{ todoItem.priority }}</small>
-  <small>{{ todoItem.createdOn }}</small>
+  <p>prio: {{ todoItem.priority }}</p>
+  <p>created on: {{ todoItem.createdOn }}</p>
+  <p *ngIf="todoItem.completedOn">completed on: {{ todoItem.completedOn }}</p>
   <button (click)="completeItem()" *ngIf="!todoItem.completedOn">Completed</button>
 </div>
