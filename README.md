@@ -7,6 +7,21 @@ Following this training should teach you the following:
 
 This training assumes you have nodejs and git installed.
 
+## Contents
+- [1. setting up the project](#)
+- [2. Building the app](#)
+	- [2.1 Let's start with the service](#)
+	- [2.2 Creating the todo item component](#)
+	- [2.3 Todo item list component](#)
+	- [2.4 Creating the todo overview page](#)
+	- [2.5 The result](#)
+- [3. Building the node server](#)
+	- [3.1 Setting up for creating the server](#)
+	- [3.2 Creating the TodoItem model](#)
+	- [3.3 Setting up the server](#)
+	- [3.4 Creating a data store for todo items.](#)
+	- [3.5 Exposing the get function in our web service](#)
+
 ## 1. setting up the project
 
 1. Install the Angular CLI tooling by running `npm install @angular/cli -g` from the command line.  
