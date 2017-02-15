@@ -337,8 +337,11 @@ This component will also serve as the landing page for our app.
     <app-overview></app-overview>
    ```
 
-5. Now let's build and run out project to see the ugly fruits of our effort :-).
-   Do this by running `ng server` and going to `http://localhost:4200` in your browser.
+### 2.5 The result
+Now let's build and run our project to see the ugly fruits of our effort :-)
+Do this by running `ng serve` and going to `http://localhost:4200` in your browser.
 
-   The result should be something like this:  
-   ![ave todo first run](/readmecontent/images//first-run-todo.png?raw=true)
+The result should be something like this:  
+![ave todo first run](/readmecontent/images//first-run-todo.png?raw=true)
+
+We can click the 'complete' button to see it disappear and see a completed date show up instead.
