@@ -348,3 +348,73 @@ We can click the 'complete' button to see it disappear and see a completed date 
 
 Because we don't save the data persistently the changes we make will be gone after refreshing.
 In the next chapter we will be creating a server in node to be able to save the data to disc.
+
+
+## 3. Building the node server
+
+Now we are going to build a server that will be hosted in nodejs. 
+We will implement a RESTfull web service using Express and save the data to a local database using NeDB.
+
+### 3.1 Setting up for creating the server
+
+1. Let's start with pulling in the dependencies we need to implement our server.
+   Run `npm install express nedb --save` to download and save both Express and NeDB as dependency.
+
+2. Now in the root of our project let's create a folder called `server` in this folder we will put the code for our server.
+
+### 3.2 Creating the TodoItem model
+Because we will be using CommonJS and not TypeScript for our server code we need to recreate the model for the `TodoItem`.
+Create a new file called `todo-item.js` in the 'server' folder.
+Fill the file with the following:
+```javascript
+function TodoItem(id, title, description, priority, createdOn, completedOn) {
+    /** The id of the todo item */
+    this.id = id;
+
+    /** The title of the todo item */
+    this.title = title;
+
+    /** The description of the todo item */
+    this.description = description;
+
+    /** The priority of the todo item */
+    this.priority = priority;
+
+    /** The date of when the todo item was created */
+    this.createdOn = createdOn;
+
+    /** The date of when the todo item was completed, null if not completed yet */
+    this.completedOn = completedOn;
+}
+
+module.exports = TodoItem;
+```
+
+### 3.3 Setting up the server
+1. Create a new file called `server.js` in the folder 'server'.
+
+2. In CommonJS you can also import file much like we already did in TypeScript only the syntax is a bit different.
+   Let's start with importing the `TodoItem` model and express.
+   ```javascript
+    var TodoItem = require('./todo-item');
+    var express = require('express');
+   ```
+
+3. Next let's bootstrap Express so that we can start hosting our own RESTfull web service.
+   ```javascript
+    var app = express();
+
+    app.listen(3000, function () {
+        console.log('avetodo server running on http://localhost:3000');
+    });
+   ```
+
+4. Now let's implement a simple get method. Make sure you place all the code for express before the `app.listen(...)` line.
+   ```javascript
+    app.get('/', function (req, res) {
+        res.send('Hello World!')
+    });
+   ```
+
+5. Now run the server using `node .\server\server.js` and goto http://localhost:3000 in your browser.
+   The result should be 'Hello World!'.
