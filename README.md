@@ -470,7 +470,7 @@ module.exports = TodoItem;
    ```javascript
    var todoItemStore = new TodoItemStore();
    ```
-3. Now let's change the implementation of out `app.get(...)` to retrieve and return data from our datastore.
+3. Now let's change the implementation of out `app.get(...)` to retrieve and return data from our datastore.  
    ```javascript
     app.get('/', function (req, res) {
         todoItemStore.getOpenTodoItem()
