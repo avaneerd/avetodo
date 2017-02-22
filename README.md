@@ -220,7 +220,7 @@ Because we will be rendering todo items on multiple places we want them to be se
    ```
    This input parameter we will be using later in our code.
 
-3. Now let's switch to the template `todo-item.template.html` and put in some basic output.
+3. Now let's switch to the template `todo-item.component.html` and put in some basic output.
    ```html
     <div>
         <h1>{{ todoItem.title }}</h1>
@@ -295,7 +295,7 @@ This component will be very straight forward, it will receive todo items and wil
         @Input() todoItems: Array<TodoItem>;
    ```
 
-3. Now let's add the view for it in `todo-item-list.template.html`.
+3. Now let's add the view for it in `todo-item-list.component.html`.
    ```html
     <div>
         <app-todo-item *ngFor="let item of todoItems" [todoItem]="item"></app-todo-item>
@@ -337,7 +337,7 @@ This component will also serve as the landing page for our app.
     }
    ```
 
-3. Switch to the `overview.template.html` template to implement our view.
+3. Switch to the `overview.component.html` template to implement our view.
    This will be a simple component that will just use the todo item list component to render todo items.
    ```html
    <app-todo-item-list [todoItems]="todoItems"></app-todo-item-list>
